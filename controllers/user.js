@@ -7,7 +7,9 @@ dotenv.config();
 
 const User = require("../models").User;
 
-//inscription :
+/* CREATION DES ROUTES D'AUTHENTIFICATION UTILISATEURS */
+
+// ROUTE > Inscription utilisateur :
 exports.signup = (req, res) => {
   bcrypt
     .hash(req.body.password, 10)
@@ -31,7 +33,7 @@ exports.signup = (req, res) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
-//Connexion avec un compte existant en BDD :
+//ROUTE > Connexion avec un compte existant en BDD :
 exports.login = (req, res) => {
   User.findOne({ where: { email: maskdata.maskEmail2(req.body.email) } })
     .then((user) => {
