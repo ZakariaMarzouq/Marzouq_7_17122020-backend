@@ -36,11 +36,11 @@ exports.getOnePost = (req, res, next) => {
 
   Post.findOne({ where: { id: id }, include: { model: User }})
     .then(post => res.status(200).json(post))
-    .catch(error => res.status(400).json({ message: 'Impossible d\'afficher ce post', error }));
+    .catch(error => res.status(400).json({ message: 'Impossible d\'afficher ce post !', error }));
 };
 
 //Route > Modifier un post : 
-exports.modifyPost = (req, res) => {
+exports.modifyPost = (req, res, next) => {
   const id = req.params.id;
   const userId = req.body.userId
 
@@ -51,13 +51,13 @@ exports.modifyPost = (req, res) => {
   }
 
   Post.update(updatedPost, { where: { id: id, userId: userId }})
-      .then(() => res.status(200).json({ message: 'Post modifié avec succès' }))
-      .catch(error => res.status(400).json({ message: 'Impossible de modifier ce post', error }));
+      .then(() => res.status(200).json({ message: 'Post modifié avec succès !' }))
+      .catch(error => res.status(400).json({ message: 'Impossible de modifier ce post !', error }));
 };
 
 //Route > Suppression d'un post : 
 
-exports.deletePost = (req, res) => {
+exports.deletePost = (req, res, next) => {
   const id = req.params.id;
   const userId = req.body.userId;
 
@@ -69,13 +69,13 @@ exports.deletePost = (req, res) => {
               const filename = post.imageUrl.split('/images/')[1];
               fs.unlink(`images/${filename}`, () => {
                   Post.destroy({ where: { id: id, userId: userId }})
-                      .then(() => res.status(200).json({ message: 'Post supprimé avec succès' }))
-                      .catch(error => res.status(400).json({ message: 'Impossible de supprimer ce post', error }));
+                      .then(() => res.status(200).json({ message: 'Post supprimé avec succès !' }))
+                      .catch(error => res.status(400).json({ message: 'Impossible de supprimer ce post !', error }));
               })
           } else {
               Post.destroy({ where: { id: id, userId: userId }})
-                  .then(() => res.status(200).json({ message: 'Post supprimé avec succès' }))
-                  .catch(error => res.status(400).json({ message: 'Impossible de supprimer ce post', error }));
+                  .then(() => res.status(200).json({ message: 'Post supprimé avec succès !' }))
+                  .catch(error => res.status(400).json({ message: 'Impossible de supprimer ce post !', error }));
           }
       })
       .catch(error => res.status(500).json({ error }))
