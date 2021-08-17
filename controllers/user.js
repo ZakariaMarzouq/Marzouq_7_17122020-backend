@@ -7,33 +7,32 @@ dotenv.config();
 
 const User = require("../models").User;
 
-/* CREATION DES ROUTES D'AUTHENTIFICATIONS UTILISATEURS */
-
-// ROUTE > Inscription utilisateur :
-exports.signup = (req, res, next) => {
-  bcrypt.hash(req.body.password, 10)
+// ROUTE > Inscription nouvelle utilisateur
+exports.signup = (req, res) => {
+  bcrypt
+    .hash(req.body.password, 10)
     .then((hash) => {
       const user = {
         firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: maskdata.maskEmail12(req.body.email),
+        lastName: req.body.lastName,        
+        email: maskdata.maskEmail2(req.body.email),
         password: hash,
       };
       User.create(user)
         .then(() =>
-          res.status(201).json({ message: "Utilisateur créé avec succes !" })
+          res.status(201).json({ message: "Utilisateur créé avec succès !" })
         )
         .catch((error) =>
           res
             .status(400)
-            .json({ message: "L'utilisateur n'a pas pu être créé :" + error })
+            .json({ message: "Impossible de créer cet utilisateur", error })
         );
     })
     .catch((error) => res.status(500).json({ error }));
 };
 
-//ROUTE > Connexion avec un compte existant en BDD :
-exports.login = (req, res, next) => {
+// ROUTE > Connexion utilisateur existant en base de donnée
+exports.login = (req, res) => {
   User.findOne({ where: { email: maskdata.maskEmail2(req.body.email) } })
     .then((user) => {
       // Si on ne trouve aucun utilisateur
@@ -50,12 +49,10 @@ exports.login = (req, res, next) => {
           }
           res.status(200).json({
             userId: user.id,
-            // Fonction d'encodage d'un nouveau token
-            token: jwt.sign(
-              { userId: user.id },
-              process.env.TOKEN, 
-              { expiresIn: "24h" }
-            ),
+            // Génère un token grâce au package jsonwebtoken
+            token: jwt.sign({ userId: user.id }, process.env.TOKEN, {
+              expiresIn: "24h",
+            }),
           });
         })
         .catch((error) => res.status(500).json({ error }));
@@ -63,18 +60,67 @@ exports.login = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
-//ROUTE > Pour afficher un Utilisateur présent dans la base de donnée :
-
-exports.getOneUser = (req, res, next) => {
-  const userId = req.body.id;
-
-  User.findByPk(userId)
-    .then(user => {
-      if(user) {
-        res.status(200).json(user);
+// ROUTE > Afficher un utilisateur
+exports.getOneUser = (req, res) => {
+  const userId = req.params.id;
+   User.findByPk(userId)
+    .then((user) => {
+      console.log(userId);
+      if (user) {
+        res.status(200).json({
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          isAdmin: user.isAdmin,
+        });
+        console.log(user);
       } else {
-        res.status(404).json({message : 'Utilisateur non trouvé !'});
+        res.status(404).json({ message: "Utilisateur non trouvé" });
       }
     })
-    .catch(error => res.status(500).json({message: 'Impossible de trouver l\'utilisateur recherché !', error}));
+    .catch((error) =>
+      res
+        .status(500)
+        .json({ message: "Impossible de trouver cet utilisateur", error })
+    );
+    console.log(user);
+
+};
+
+
+// ROUTE > Modifier un utilisateur
+exports.modifyUser = (req, res) => {
+  const userId = req.params.id;
+
+  const updatedUser = {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    
+  };
+
+  User.update(updatedUser, { where: { id: userId } })
+    .then(() =>
+      res.status(200).json({ message: "Utilisateur modifié avec succès" })
+    )
+    .catch((error) =>
+      res
+        .status(400)
+        .json({ message: "Impossible de modifier cet utilisateur", error })
+    );
+};
+
+// ROUTE > Supprimer un utilisateur
+exports.deleteUser = (req, res) => {
+  const userId = req.params.id;
+
+  User.destroy({ where: { id: userId } })
+    .then(() =>
+      res.status(200).json({ message: "Utilisateur supprimé avec succès" })
+    )
+    .catch((error) =>
+      res
+        .status(400)
+        .json({ message: "Impossible de supprimer cet utilisateur", error })
+    );
 };

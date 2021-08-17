@@ -10,28 +10,31 @@ dotenv.config();
 /* CREATTION DES ROUTES POST */
 
 //Route > Création d'un post :
-exports.createPost = (req, res, next) => {
-  const post = {
+exports.createPost = (req, res) => {
+  console.log(req.body);
+  const post = new model.Post ({
     userId: req.body.userId,
     title: req.body.title,
     content: req.body.content,
-    imageUrl:  req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null, 
-  }
+    imageUrl:  req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
+    createdAt : Date.now(),
+    updatedAt: Date.now()
+  })
   Post.create(post)
         .then(() => res.status(201).json({ message: 'Post créé avec succès !' }))
         .catch(error => res.status(400).json({ message: 'Impossible de créer ce post !', error }));
 };
 
 //Route > Afficher tous les posts :
-exports.getAllPosts = (req, res, next) => {
-  Post.findAll({ order: [['updatedAt', 'DESC']], include: { model: User } })
+exports.getAllPosts = (req, res) => {
+  Post.findAll({ order: [['createdAt', 'DESC']], include: { model: User } })
   .then(posts => res.status(200).json(posts))
   .catch(error => res.status(400).json({ message: 'Impossible d\'afficher tous les posts !', error }));
 };
 
 
 //Route > Afficher un post unique :
-exports.getOnePost = (req, res, next) => {
+exports.getOnePost = (req, res) => {
   const id = req.params.id;
 
   Post.findOne({ where: { id: id }, include: { model: User }})
@@ -40,7 +43,7 @@ exports.getOnePost = (req, res, next) => {
 };
 
 //Route > Modifier un post : 
-exports.modifyPost = (req, res, next) => {
+exports.modifyPost = (req, res) => {
   const id = req.params.id;
   const userId = req.body.userId
 
@@ -57,7 +60,7 @@ exports.modifyPost = (req, res, next) => {
 
 //Route > Suppression d'un post : 
 
-exports.deletePost = (req, res, next) => {
+exports.deletePost = (req, res) => {
   const id = req.params.id;
   const userId = req.body.userId;
 

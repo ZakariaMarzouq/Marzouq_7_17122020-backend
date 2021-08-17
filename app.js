@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const userRoutes = require('./routes/user');
-const postRoutes = require('./routes/user');
+const postRoutes = require('./routes/post');
 
 
 const app = express();
@@ -16,13 +16,15 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-app.use(bodyParser.json());
+
 
 app.use('/api/auth', userRoutes);
 app.use('/api/posts', postRoutes);
+
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;
