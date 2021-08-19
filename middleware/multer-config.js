@@ -8,6 +8,7 @@ const MIME_TYPES = {
   "image/jpg": "jpg",
   "image/jpeg": "jpg",
   "image/png": "png",
+  "image/gif": "gif"
 };
 
 //Création d'un objet de configuration pour multer
@@ -24,5 +25,5 @@ const storage = multer.diskStorage({
   },
 });
 
-//Exportation de multer, en précisant quon stocke un fichier unique et non un groupe, et qu'il s'agit d'une image
+//Exportation de multer, en précisant qu'on stocke un fichier unique et non un groupe, et qu'il s'agit d'une image
 module.exports = multer({ storage }).single("image");
