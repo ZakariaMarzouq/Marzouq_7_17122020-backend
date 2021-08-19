@@ -20,10 +20,10 @@ router.delete('/:id',  postCtrl.deletePost);
 
 
 // Routes des commentaires :
-router.post('/',  multer, commentCtrl.createComment);
-router.get('/',  commentCtrl.getAllComments);
-router.get('/:id',  commentCtrl.getOneComment);
-router.put('/:id',  commentCtrl.modifyComment);
-router.delete('/:id', commentCtrl.deleteComment);
+router.post('/:postId/comments',  multer, commentCtrl.createComment);
+router.get('/:postId/comments',  commentCtrl.getAllComments);
+router.get('/:postId/comments/:id',  commentCtrl.getOneComment);
+router.put('/:postId/comments/:id',  commentCtrl.modifyComment);
+router.delete('/:postId/comments/:id', commentCtrl.deleteComment);
 
 module.exports = router;
