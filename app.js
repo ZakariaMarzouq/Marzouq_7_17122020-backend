@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const path = require('path');
+
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user')
@@ -19,12 +21,16 @@ app.use((req, res, next) => {
   next();
 });
 
+
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+app.use(cookieParser());
 
 
+// routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);

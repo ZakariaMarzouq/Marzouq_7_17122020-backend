@@ -11,11 +11,13 @@ dotenv.config();
 
 //Route > Création d'un post :
 exports.createPost = (req, res) => {
+    console.log(req.body);
   const post = {
+
       userId: req.body.userId,
       title: req.body.title,
       content: req.body.content,
-      imageUrl: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
+      //imageUrl: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
   };
   Post.create(post)
         .then(() => res.status(201).json({ message: 'Post créé avec succès !' }))

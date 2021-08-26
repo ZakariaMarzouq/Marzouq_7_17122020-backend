@@ -13,7 +13,7 @@ exports.signup = (req, res) => {
   User.findOne({ where: { email: maskdata.maskEmail2(req.body.email) } })
     .then((result) => {
       if (result) {
-        res.status(409).json({
+        res.status(400).json({
           message: "Adresse existante !",
         });
       } else {
@@ -66,10 +66,11 @@ exports.login = (req, res) => {
                   }
                   res.status(200).json({
                       userId: user.id,
+                      userName: user.firstName,
                       // Génère un token grâce au package jsonwebtoken
                       token: jwt.sign(
                           { userId: user.id },
-                          process.env.TOKEN,
+                          process.env.TOKEN_KEY_SECRET,
                           { expiresIn: '24h' }
                       )
                   });
@@ -78,3 +79,8 @@ exports.login = (req, res) => {
       })
       .catch(error => res.status(500).json({ error }));
 };
+
+exports.logout = (req, res) => {
+  res.cookie('jwt', '', { maxAge: 1 });
+  res.redirect('/');
+}
