@@ -25,6 +25,7 @@ exports.signup = (req, res) => {
               lastName: req.body.lastName,
               email: maskdata.maskEmail2(req.body.email),
               password: hashPassword,
+              isAdmin: req.body.isAdmin
             };
 
             // Création de l'user
@@ -69,7 +70,7 @@ exports.login = (req, res) => {
                       userName: user.firstName,
                       // Génère un token grâce au package jsonwebtoken
                       token: jwt.sign(
-                          { userId: user.id },
+                        { userId: user.id, isAdmin: user.isAdmin },
                           process.env.TOKEN_KEY_SECRET,
                           { expiresIn: '24h' }
                       )
