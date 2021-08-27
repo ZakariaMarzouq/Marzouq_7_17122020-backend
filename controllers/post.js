@@ -81,39 +81,48 @@ exports.modifyPost = (req, res) => {
 };
 
 //Route > Suppression d'un post :
-
 exports.deletePost = (req, res) => {
   const id = req.params.id;
   const userId = req.body.userId;
 
   Post.findOne({ where: { id: id } })
-    .then((post) => {
-      // Si le post a une image, supprimer l'image du dossier '/images' et supprimer le post
-      // Sinon supprimer le post uniquement
-      if (post.imageUrl) {
-        const filename = post.imageUrl.split("/images/")[1];
-        fs.unlink(`images/${filename}`, () => {
-          Post.destroy({ where: { id: id, userId: userId } })
-            .then(() =>
-              res.status(200).json({ message: "Post supprimé avec succès !" })
-            )
-            .catch((error) =>
-              res
-                .status(400)
-                .json({ message: "Impossible de supprimer ce post !", error })
-            );
-        });
-      } else {
-        Post.destroy({ where: { id: id, userId: userId } })
-          .then(() =>
-            res.status(200).json({ message: "Post supprimé avec succès !" })
-          )
-          .catch((error) =>
-            res
-              .status(400)
-              .json({ message: "Impossible de supprimer ce post !", error })
-          );
-      }
-    })
-    .catch((error) => res.status(500).json({ error }));
+      .then(post => {
+          // Si le post a une image, supprimer l'image du dossier '/images' et supprimer le post
+              // Sinon supprimer le post directement
+          if (post.imageUrl) {
+              const filename = post.imageUrl.split('/images/')[1];
+              fs.unlink(`images/${filename}`, () => {
+                  Post.destroy({ where: { id: id, userId: userId }})
+                      .then(() => res.status(200).json({ message: 'Post supprimé avec succès' }))
+                      .catch(error => res.status(400).json({ message: 'Impossible de supprimer ce post', error }));
+              })
+          } else {
+              Post.destroy({ where: { id: id, userId: userId }})
+                  .then(() => res.status(200).json({ message: 'Post supprimé avec succès' }))
+                  .catch(error => res.status(400).json({ message: 'Impossible de supprimer ce post', error }));
+          }
+      })
+      .catch(error => res.status(500).json({ error }))
+};
+
+// Supprimer un post par l'admin
+exports.deletePostByAdmin = (req, res) => {
+  const id = req.params.id;
+
+  Post.findOne({ where: { id: id } })
+      .then(post => {
+          if (post.imageUrl) {
+              const filename = post.imageUrl.split('/images/')[1];
+              fs.unlink(`images/${filename}`, () => {
+                  Post.destroy({ where: { id: id }})
+                      .then(() => res.status(200).json({ message: 'Post supprimé avec succès' }))
+                      .catch(error => res.status(400).json({ message: 'Impossible de supprimer ce post', error }));
+              })
+          } else {
+              Post.destroy({ where: { id: id }})
+                  .then(() => res.status(200).json({ message: 'Post supprimé avec succès' }))
+                  .catch(error => res.status(400).json({ message: 'Impossible de supprimer ce post', error }));
+          }
+      })
+      .catch(error => res.status(500).json({ error }))
 };
