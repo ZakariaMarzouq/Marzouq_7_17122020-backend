@@ -6,6 +6,7 @@ const path = require('path');
 
 const userRoutes = require('./routes/user')
 const postRoutes = require('./routes/post');
+const commentRoutes = require("./routes/comment");
 
 
 
@@ -31,6 +32,7 @@ app.use(cookieParser());
 // routes
 app.use('/api/auth', userRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/comments', commentRoutes);
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 

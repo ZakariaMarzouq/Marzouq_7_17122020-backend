@@ -4,49 +4,44 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const User = require("../models").User;
 const Op = require('sequelize').Op;
+const identification = require("../utils/identification")
 dotenv.config();
 
-// ROUTE > Inscription nouvelle utilisateur
-exports.signup = (req, res) => {
-  // Si l'email éxiste dans la bd
-  User.findOne({ where: { email: maskdata.maskEmail2(req.body.email) } })
-    .then((result) => {
-      if (result) {
-        res.status(400).json({
-          message: "Adresse existante !",
-        });
-      } else {
-        // Hashage et Salage du MDP
-        bcrypt.genSalt(10, function (err, salt) {
-          bcrypt.hash(req.body.password, salt, function (err, hashPassword) {
-            const newUser = {
-              firstName: req.body.firstName,
-              lastName: req.body.lastName,
-              email: maskdata.maskEmail2(req.body.email),
-              password: hashPassword,
-              isAdmin: req.body.isAdmin
-            };
 
-            // Création de l'user
-            User.create(newUser)
-              .then((result) => {
-                res.status(201).json({
-                  message: "Utilisateur créé avec succès !",
-                  user: newUser,
-                });
-              })
-              .catch((error) => {
-                res.status(400).json({
-                  message: 'Impossible de créer cet utilisateur', error
-                });
-              });
-          });
-        });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({ error });
+
+const passwordValidator = require("password-validator");
+const schema = new passwordValidator(); //On crée un schema pour obtenir des mots de passe plus sécurisés
+schema
+  .is().min(8) // min 8 caractères
+  .has().digits(1) // min 1 chiffre
+  .has().uppercase(1) // min 1 caractère majuscule
+  .has().lowercase(1) // min 1 caractère minuscule
+  .has().symbols(1) // min 1 symbole
+  .has().not().spaces(); // ne doit pas contenir d'espace
+
+// ROUTE > Inscription nouvelle utilisateur
+exports.signup = (req, res, next) => {
+  if (!schema.validate(req.body.password)) {
+    //Vérifie si  le schema de mot de passe est pas respecté
+    res.status(401).json({
+      message: `Mot de passe pas assez sécurisé, il doit contenir au moins 8 caractères, un chiffre, une majuscule, une minuscule, un symbole et ne pas contenir d'espace !`,
     });
+    return false;
+  }
+  bcrypt
+    .hash(req.body.password, 10) //On hash le mot de passe et on le sale 10 fois
+    .then((hash) => {
+      delete req.body.password;
+      User.create({
+        lastName: req.body.lastName,
+        firstName: req.body.firstName,
+        email: maskdata.maskEmail2(req.body.email),
+        password: hash,
+      })
+        .then(() => res.status(201).json({ message: `Utilisateur créé !` }))
+        .catch((error) => res.status(400).json({ error }));
+    })
+    .catch((error) => res.status(500).json({ error }));
 };
 
 // Connexion d'un user
